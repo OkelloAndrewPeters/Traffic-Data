@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf">
+<head>
+<title>Pixel Values</title>
+</head>
+<body>
+    <section id="pixel-count-container" class="pixel-count-container invisible">
+        <h2>Pixel Counts by Color</h2>                
+        <p><span id="color-count"></span> unique colors</p>
+        <div id="color-swatches" class="color-swatches">
+        </div>
+    </section> 
+</main>        
+<div id="wait-indicator" class="invisible">
+    <img src="assets/ashley_sprite.gif">
+    <p>Please Wait</p>
+</div> 
+
+
+<script src="js/jquery/dist/jquery.min.js"></script>
+<script>
+getPixelData();
+function getPixelData(){
+    var settings = {
+        "url": "http://localhost/pixel/getPixelData.php",
+        "method": "GET",
+        "timeout": 0,
+      };
+      $.ajax(settings).done(function (response) {
+        displaySwatches(response);
+      });
+ }
+
+ function displaySwatches(response){
+ var encode = response[0].IMG_DATA;  
+var actual = JSON.parse(atob(encode));
+drawColorSwatch(actual);
+ }
+
+ /**
+ * 
+ */
+drawColorSwatch = (colorCount) => {
+    let colorSwatches = document.getElementById('color-swatches');
+
+    for(const color in colorCount) {
+        const container = document.createElement("section");
+        const swatch = document.createElement("div");
+        const colorCountLabel = document.createElement("span");
+
+        container.classList.add("color-swatch-container");
+
+        swatch.classList.add("color-swatch");
+        swatch.style.background = color;
+        swatch.title = color;
+
+        colorCountLabel.innerHTML = `: ${colorCount[color]}`;
+
+        container.appendChild(swatch);
+        container.appendChild(colorCountLabel);
+        colorSwatches.appendChild(container);
+    }
+    
+    let pixelCountContainer = document.getElementById('pixel-count-container');
+    pixelCountContainer.classList.remove('invisible');
+};
+
+/**
+ * Clear DOM of past color counting
+ */
+reset = () => {
+    let pixelCountContainer = document.getElementById('pixel-count-container');
+    pixelCountContainer.classList.add('invisible');
+
+    let colorSwatches = document.getElementById('color-swatches');
+    while (colorSwatches.firstChild) {
+        colorSwatches.removeChild(colorSwatches.firstChild);
+    }
+    
+    let uploadContainer = document.getElementById('upload-container');
+    let image = uploadContainer.getElementsByTagName('img')[0];  
+
+    if (image) {
+        uploadContainer.removeChild(image);
+    }
+
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');  
+    context.clearRect(0, 0, canvas.width, canvas.height);
+}
+</script>
+
+</body>
+</html>
